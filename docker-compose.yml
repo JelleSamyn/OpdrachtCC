@@ -1,5 +1,5 @@
 services:
-mosquitto:
+  mosquitto:
     image: eclipse-mosquitto
     container_name: mqtt_broker
     restart: always
@@ -10,5 +10,12 @@ mosquitto:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
+
+  controller:
+    build: .
+    container_name: controller
+    restart: always
+    depends_on:
+      - mosquitto
     
    

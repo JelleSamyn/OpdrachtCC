@@ -1,13 +1,13 @@
 import json, random, time
 import paho.mqtt.client as mqtt
-THE_BROKER = "localhost"
+BROKER = "mosquitto"
 Sensor1x = "Controller/Sensorwaarde/Joystick/x"
 Sensor1y = "Controller/Sensorwaarde/Joystick/y"
 Sensor2x = "Controller/Sensorwaarde/Knop/x"
 Sensor2y = "Controller/Sensorwaarde/Knop/y"
 
 mqttc=mqtt.Client()
-mqttc.connect(THE_BROKER,1883, 60)
+mqttc.connect(BROKER,1883)
 
 while True:
     waarde1 = {"Sensor1 x-waarde": random.randint(0, 180), "Sensor1 y-waarde": random.randint(0, 180)}

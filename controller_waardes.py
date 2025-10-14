@@ -7,7 +7,7 @@ Sensor2x = "Controller/Sensorwaarde/Knop/x"
 Sensor2y = "Controller/Sensorwaarde/Knop/y"
 
 mqttc=mqtt.Client()
-mqttc.connect(THE_BROKER,1883)
+mqttc.connect(THE_BROKER,1883, 60)
 
 while True:
     waarde1 = {"Sensor1 x-waarde": random.randint(0, 180), "Sensor1 y-waarde": random.randint(0, 180)}

@@ -1,2 +1,1 @@
 # OpdrachtCC
-©zigger

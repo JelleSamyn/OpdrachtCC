@@ -11,11 +11,5 @@ services:
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
 
-  controller:
-    build: .
-    container_name: controller
-    restart: always
-    depends_on:
-      - mosquitto
     
    

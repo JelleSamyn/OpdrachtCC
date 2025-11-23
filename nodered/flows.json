@@ -1,0 +1,150 @@
+[
+    {
+        "id": "tab1",
+        "type": "tab",
+        "label": "Sensor Flow",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "mqtt_in_joystick",
+        "type": "mqtt in",
+        "z": "tab1",
+        "name": "Joystick Input",
+        "topic": "sensor/controller/joystick",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "mqtt_broker_config",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "func_validate_joystick"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_in_buttons",
+        "type": "mqtt in",
+        "z": "tab1",
+        "name": "Buttons Input",
+        "topic": "sensor/controller/buttons",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "mqtt_broker_config",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "func_validate_buttons"
+            ]
+        ]
+    },
+    {
+        "id": "func_validate_joystick",
+        "type": "function",
+        "z": "tab1",
+        "name": "Validate Joystick",
+        "func": "var payload = msg.payload;\n// Simple validation: magnitude should not be > 2 (just an example rule)\nif (payload.magnitude > 2) {\n    return null;\n}\n\n// Add measurement name for InfluxDB\nmsg.payload = [\n    {\n        measurement: \"joystick\",\n        fields: {\n            x: payload.x,\n            y: payload.y,\n            magnitude: payload.magnitude\n        },\n        tags: {\n            source: \"simulator\"\n        },\n        timestamp: new Date(payload.timestamp)\n    }\n];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "influx_out_node"
+            ]
+        ]
+    },
+    {
+        "id": "func_validate_buttons",
+        "type": "function",
+        "z": "tab1",
+        "name": "Validate Buttons",
+        "func": "var payload = msg.payload;\n// Validation: pressed_count cannot be negative (already impossible by rand, but good for logic)\nif (payload.pressed_count < 0) {\n    return null;\n}\n\n// Add measurement name for InfluxDB\nmsg.payload = [\n    {\n        measurement: \"buttons\",\n        fields: {\n            pressed_count: payload.pressed_count\n        },\n        tags: {\n            source: \"simulator\"\n        },\n        timestamp: new Date(payload.timestamp)\n    }\n];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 200,
+        "wires": [
+            [
+                "influx_out_node"
+            ]
+        ]
+    },
+    {
+        "id": "influx_out_node",
+        "type": "influxdb out",
+        "z": "tab1",
+        "influxdb": "influxdb_config",
+        "name": "InfluxDB Storage",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18FluxV20": "",
+        "org": "sensorgateway",
+        "bucket": "sensor_data",
+        "x": 650,
+        "y": 150,
+        "wires": []
+    },
+    {
+        "id": "mqtt_broker_config",
+        "type": "mqtt-broker",
+        "name": "Local Broker",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "influxdb_config",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": "8086",
+        "protocol": "http",
+        "database": "database",
+        "name": "InfluxDB V2",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "rejectUnauthorized": true,
+        "org": "sensorgateway",
+        "bucket": "sensor_data",
+        "token": "my-super-secret-auth-token"
+    }
+]

@@ -95,7 +95,7 @@
         "name": "Joystick MQTT",
         "topic": "sensor/controller/joystick",
         "qos": "0",
-        "datatype": "json",
+        "datatype": "auto-detect",
         "broker": "mqtt_broker",
         "nl": false,
         "rap": false,
@@ -113,7 +113,7 @@
         "type": "function",
         "z": "7671979292875db2",
         "name": "Build Influx Payload",
-        "func": "let data = msg.payload;\nif (typeof data === 'string') {\n    data = JSON.parse(data);\n}\n\n// Parse fields veilig\nlet x = parseFloat(data.x);\nlet y = parseFloat(data.y);\nlet magnitude = parseFloat(data.magnitude);\n\n// fallback voor NaN\nx = isNaN(x) ? 0 : x;\ny = isNaN(y) ? 0 : y;\nmagnitude = isNaN(magnitude) ? 0 : magnitude;\n\nmsg.payload = [\n    {\n        measurement: 'joysticktest',\n        fields: {\n            x: x,\n            y: y,\n            magnitude: magnitude\n        },\n        tags: {\n            location: 'controller'\n        }\n    }\n];\n\nreturn msg;\n",
+        "func": "let data = msg.payload;\nif (typeof data === \"string\") data = JSON.parse(data);\n\nmsg.payload = {\n    x: Number(data.x),\n    y: Number(data.y),\n    magnitude: Number(data.magnitude),\n    tags: { location: \"controller\" }\n};\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -124,8 +124,7 @@
         "y": 100,
         "wires": [
             [
-                "ea61f4ca9c2ce8f3",
-                "4d6ead57668324f3"
+                "ea61f4ca9c2ce8f3"
             ]
         ]
     },
@@ -135,7 +134,7 @@
         "z": "7671979292875db2",
         "influxdb": "influx_config",
         "name": "InfluxDB Joystick",
-        "measurement": "joysticktest",
+        "measurement": "joystick",
         "precision": "",
         "retentionPolicy": "",
         "database": "",
@@ -147,20 +146,60 @@
         "wires": []
     },
     {
-        "id": "4d6ead57668324f3",
-        "type": "debug",
+        "id": "d21410c887e1bc29",
+        "type": "mqtt in",
         "z": "7671979292875db2",
-        "name": "Debug Payload",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 650,
-        "y": 160,
+        "name": "Joystick MQTT",
+        "topic": "sensor/controller/buttons",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "mqtt_broker",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 180,
+        "y": 200,
+        "wires": [
+            [
+                "91f14e2d29c6367b"
+            ]
+        ]
+    },
+    {
+        "id": "d6b40c6d258ae22b",
+        "type": "influxdb out",
+        "z": "7671979292875db2",
+        "influxdb": "influx_config",
+        "name": "InfluxDB Joystick",
+        "measurement": "buttons",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "",
+        "retentionPolicyV18Flux": "",
+        "org": "sensorsim",
+        "bucket": "sensor_data",
+        "x": 610,
+        "y": 200,
         "wires": []
+    },
+    {
+        "id": "91f14e2d29c6367b",
+        "type": "function",
+        "z": "7671979292875db2",
+        "name": "Build Influx Payload",
+        "func": "let data = msg.payload;\nif (typeof data === \"string\") data = JSON.parse(data);\n\nmsg.payload = {\n    buttons: Number(data.buttons),\n    tags: { location: \"controller\" }\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 200,
+        "wires": [
+            [
+                "d6b40c6d258ae22b"
+            ]
+        ]
     }
 ]

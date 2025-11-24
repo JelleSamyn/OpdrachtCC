@@ -28,7 +28,7 @@ Het systeem bestaat uit de volgende Docker-containers, aangestuurd via Docker Co
 
 ```
 .
-├── deploy.sh               # script voor geautomatiseerde (her)installatie
+├── deploy.bat               # script voor geautomatiseerde (her)installatie
 ├── docker-compose.yml      # Docker Compose configuratie voor de stack
 ├── influxdb_config/        # Configuratiebestanden voor InfluxDB
 ├── influxdb_data/          # Persistente opslag voor InfluxDB data
@@ -61,7 +61,11 @@ Deze gegevens zijn geconfigureerd in `docker-compose.yml` en zijn nodig om in te
 
 -   **Gebruikersnaam**: `admin`
 -   **Wachtwoord**: `adminpassword123`
+### Portainer Logingegevens
 
+-   **Gebruikersnaam**: `admin`
+-   **Wachtwoord**: `adminpassword123`
+-   
 ### Service Endpoints
 -   **Node-RED**: [http://localhost:1880](http://localhost:1880)
 -   **InfluxDB**: [http://localhost:8086](http://localhost:8086)

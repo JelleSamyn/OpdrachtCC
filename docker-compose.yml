@@ -1,102 +1,119 @@
-version: "3.9"
+version: "3.8"
 
 services:
   mosquitto:
     image: eclipse-mosquitto:2.0
-    container_name: mqtt-broker
-    restart: unless-stopped
+    container_name: sg_mosquitto
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
     ports:
       - "1883:1883"
-      - "9001:9001"
-    volumes:
-      - mosquitto-data:/mosquitto/data
-      - mosquitto-log:/mosquitto/log
     networks:
-      - sensor-network
-    command: >
-      sh -c "mkdir -p /mosquitto/config &&
-             echo 'listener 1883' > /mosquitto/config/mosquitto.conf &&
-             echo 'allow_anonymous true' >> /mosquitto/config/mosquitto.conf &&
-             echo 'listener 9001' >> /mosquitto/config/mosquitto.conf &&
-             echo 'protocol websockets' >> /mosquitto/config/mosquitto.conf &&
-             mosquitto -c /mosquitto/config/mosquitto.conf"
+      - sg-net
 
   influxdb:
     image: influxdb:2.7
-    container_name: influxdb
-    restart: unless-stopped
-    ports:
-      - "8086:8086"
+    container_name: sg_influxdb
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword123
-      DOCKER_INFLUXDB_INIT_ORG: sensorgateway
-      DOCKER_INFLUXDB_INIT_BUCKET: sensor_data
-      DOCKER_INFLUXDB_INIT_RETENTION: 30d
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+      DOCKER_INFLUXDB_INIT_USERNAME: sg_admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: sg_password
+      DOCKER_INFLUXDB_INIT_ORG: sg_org
+      DOCKER_INFLUXDB_INIT_BUCKET: sg_bucket
+      DOCKER_INFLUXDB_INIT_RETENTION: 0
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: sg_default_token_please_change
     volumes:
-      - influxdb-data:/var/lib/influxdb2
-      - influxdb-config:/etc/influxdb2
+      - influxdb_data:/var/lib/influxdb2
+    ports:
+      - "8086:8086"
     networks:
-      - sensor-network
+      - sg-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  dashboard-importer:
+    image: curlimages/curl:latest
+    container_name: sg_dashboard_importer
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    volumes:
+      - ./influx/sensor_gateway.json:/tmp/sensor_gateway.json:ro
+      - ./scripts/import-dashboard.sh:/tmp/import-dashboard.sh:ro
+    entrypoint: ["/bin/sh", "/tmp/import-dashboard.sh"]
+    environment:
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: sg_default_token_please_change
+      INFLUX_ORG: sg_org
+    networks:
+      - sg-net
 
   nodered:
-    build: ./nodered
-    container_name: node-red
-    restart: unless-stopped
+    build:
+      context: ./nodered
+      dockerfile: Dockerfile
+    container_name: sg_nodered
+    command: >
+      --mqtt-broker mqtt://sg_mosquitto:1883
+      --influx-url http://sg_influxdb:8086
+      --influx-org sg_org
+      --influx-bucket sg_bucket
+      --influx-token sg_default_token_please_change
+    volumes:
+      - nodered_data:/data
     ports:
       - "1880:1880"
-    environment:
-      - TZ=Europe/Brussels
-    volumes:
-      - nodered-data:/data
-      - ./nodered/flows.json:/data/flows.json
     depends_on:
       - mosquitto
       - influxdb
     networks:
-      - sensor-network
+      - sg-net
 
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-      - "8000:8000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer-data:/data
-    networks:
-      - sensor-network
-
-  sensor-simulator:
-    image: python:3.11-slim
-    container_name: sensor-simulator
-    restart: unless-stopped
-    environment:
-      MQTT_BROKER: mosquitto
-      MQTT_PORT: "1883"
-      PUBLISH_INTERVAL: "2"
+  simulator:
+    build:
+      context: ./simulator
+      dockerfile: Dockerfile
+    container_name: sg_simulator
     depends_on:
       - mosquitto
     networks:
-      - sensor-network
-    working_dir: /app
+      - sg-net
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: sg_portainer
+    command: -H unix:///var/run/docker.sock
     volumes:
-      - ./simulator:/app
-    command: >
-      /bin/bash -c "pip install -q 'paho-mqtt<2.0.0' && python3 sensor_simulator.py"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - "9000:9000"
+    networks:
+      - sg-net
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: sg_watchtower
+    restart: "no"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --schedule "0 0 * * *" --cleanup
+    networks:
+      - sg-net
 
 volumes:
-  mosquitto-data:
-  mosquitto-log:
-  influxdb-data:
-  influxdb-config:
-  nodered-data:
-  portainer-data:
+  mosquitto_data:
+  mosquitto_log:
+  influxdb_data:
+  nodered_data:
+  portainer_data:
 
 networks:
-  sensor-network:
+  sg-net:
     driver: bridge

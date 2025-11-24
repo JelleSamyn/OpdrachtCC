@@ -1,0 +1,105 @@
+{
+  "kind": "dashboard",
+  "spec": {
+    "name": "Smart Sensor Gateway Dashboard",
+    "description": "Live sensorwaarden + 1u & 24u averages voor joystick en button",
+    "charts": [
+      {
+        "kind": "xy",
+        "name": "Joystick X (Live)",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"joystick\" and r._field == \"x\")"
+          }
+        ],
+        "xCol": "_time",
+        "yCol": "_value",
+        "position": { "x": 0, "y": 0, "w": 6, "h": 4 }
+      },
+      {
+        "kind": "xy",
+        "name": "Joystick Y (Live)",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"joystick\" and r._field == \"y\")"
+          }
+        ],
+        "xCol": "_time",
+        "yCol": "_value",
+        "position": { "x": 6, "y": 0, "w": 6, "h": 4 }
+      },
+      {
+        "kind": "xy",
+        "name": "Button Presses (Live)",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"button\" and r._field == \"value\")"
+          }
+        ],
+        "xCol": "_time",
+        "yCol": "_value",
+        "position": { "x": 0, "y": 4, "w": 6, "h": 4 }
+      },
+      {
+        "kind": "stat",
+        "name": "Joystick X – Gemiddelde laatste 1 uur",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"joystick\" and r._field == \"x\")\n  |> mean()"
+          }
+        ],
+        "position": { "x": 0, "y": 8, "w": 6, "h": 3 }
+      },
+      {
+        "kind": "stat",
+        "name": "Joystick Y – Gemiddelde laatste 1 uur",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"joystick\" and r._field == \"y\")\n  |> mean()"
+          }
+        ],
+        "position": { "x": 6, "y": 8, "w": 6, "h": 3 }
+      },
+      {
+        "kind": "stat",
+        "name": "Button – Gemiddelde 1 uur",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"button\" and r._field == \"value\")\n  |> mean()"
+          }
+        ],
+        "position": { "x": 0, "y": 11, "w": 6, "h": 3 }
+      },
+      {
+        "kind": "stat",
+        "name": "Joystick X – Gemiddelde 24 uur",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"joystick\" and r._field == \"x\")\n  |> mean()"
+          }
+        ],
+        "position": { "x": 0, "y": 14, "w": 6, "h": 3 }
+      },
+      {
+        "kind": "stat",
+        "name": "Joystick Y – Gemiddelde 24 uur",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"joystick\" and r._field == \"y\")\n  |> mean()"
+          }
+        ],
+        "position": { "x": 6, "y": 14, "w": 6, "h": 3 }
+      },
+      {
+        "kind": "stat",
+        "name": "Button – Gemiddelde 24 uur",
+        "queries": [
+          {
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"button\" and r._field == \"value\")\n  |> mean()"
+          }
+        ],
+        "position": { "x": 0, "y": 17, "w": 6, "h": 3 }
+      }
+    ]
+  }
+}

@@ -2,39 +2,44 @@ name: Project Backup
 
 on:
   schedule:
-    - cron: '0 2 */2 * *'  # Elke 2 dagen om 02:00 UTC
-  workflow_dispatch:       # Handmatig triggeren mogelijk
+    - cron: "0 2 */2 * *"   # Elke 2 dagen om 02:00 UTC
+  workflow_dispatch:         # Manueel triggeren
 
 jobs:
   backup:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
-      - name: Checkout repository
+      # 1️⃣ Repo ophalen met credentials (nodig om te pushen)
+      - name: Checkout main
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0   # volledige history nodig voor push naar andere branch
+          fetch-depth: 0
           persist-credentials: true
-      # 2️⃣ Setup Python
+
+      # 2️⃣ Python installeren
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      # 3️⃣ Run backup script
+      # 3️⃣ Backups map aanmaken als ze nog niet bestaat
+      - name: Create backup directory
+        run: mkdir -p backups
+
+      # 4️⃣ Backup script uitvoeren
       - name: Run backup script
         run: python backup.py
 
-      # 4️⃣ Commit & push backup naar aparte branch
+      # 5️⃣ Committen en pushen naar de "backups" branch
       - name: Commit and push backup
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Automated backup ${{ github.event.schedule }}"
-          branch: backups
-          file_pattern: backups/*
+          commit_message: "Automated backup"
+          branch: backups               # <-- Doelbranch
+          create_branch: true           # <-- Maakt branch aan als die niet bestaat
+          file_pattern: backups/*       # <-- Enkel backup-bestanden committen
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
-          push: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

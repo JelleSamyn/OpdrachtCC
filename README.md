@@ -34,9 +34,9 @@ The system consists of the following Docker containers:
 - **InfluxDB**:
     - Username: `admin`
     - Password: `adminpassword123`
-    - Token: `my-super-secret-auth-token`
-    - Org: `sensorgateway`
-    - Bucket: `sensor_data`
+- **Portainer**:
+    - Username: `admin`
+    - Password: `adminpassword123`
 
 ### Services
 - **Node-RED**: [http://localhost:1880](http://localhost:1880)
@@ -45,7 +45,7 @@ The system consists of the following Docker containers:
 
 ## Automation & CI/CD
 
-The `deploy.sh` script simulates a simple CI/CD pipeline. It:
+The `deploy.bat` script simulates a simple CI/CD pipeline. It:
 1.  Stops the running containers.
 2.  Rebuilds the Node-RED image (to ensure plugins are up to date).
 3.  Restarts the stack with the new configuration.

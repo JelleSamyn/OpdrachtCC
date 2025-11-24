@@ -49,6 +49,7 @@ services:
       - "1880:1880"
     environment:
       - TZ=Europe/Brussels
+      - INFLUX_TOKEN=my-super-secret-auth-token
     volumes:
       - nodered-data:/data
       - ./nodered/flows.json:/data/flows.json

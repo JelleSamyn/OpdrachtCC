@@ -67,6 +67,7 @@ services:
       --influx-token sg_default_token_please_change
     volumes:
       - nodered_data:/data
+      - ./nodered/flows.json:/data/flows.json
     ports:
       - "1880:1880"
     depends_on:

@@ -61,11 +61,7 @@ Deze gegevens zijn geconfigureerd in `docker-compose.yml` en zijn nodig om in te
 
 -   **Gebruikersnaam**: `admin`
 -   **Wachtwoord**: `adminpassword123`
-### Portainer Logingegevens
 
--   **Gebruikersnaam**: `admin`
--   **Wachtwoord**: `adminpassword123`
-  
 ### Service Endpoints
 -   **Node-RED**: [http://localhost:1880](http://localhost:1880)
 -   **InfluxDB**: [http://localhost:8086](http://localhost:8086)

@@ -2,13 +2,19 @@ version: "3.9"
 
 services:
   mosquitto:
+<<<<<<< Updated upstream
     image: eclipse-mosquitto:2.0
     container_name: mqtt-broker
+=======
+    image: eclipse-mosquitto:2  
+    container_name: mosquitto
+>>>>>>> Stashed changes
     restart: unless-stopped
     ports:
       - "1883:1883"
       - "9001:9001"
     volumes:
+<<<<<<< Updated upstream
       - mosquitto-data:/mosquitto/data
       - mosquitto-log:/mosquitto/log
     networks:
@@ -21,12 +27,40 @@ services:
              echo 'protocol websockets' >> /mosquitto/config/mosquitto.conf &&
              mosquitto -c /mosquitto/config/mosquitto.conf"
 
+=======
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data       
+      - ./mosquitto/log:/mosquitto/log
+
+  nodered:
+    image: nodered/node-red
+    container_name: nodered
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered_data:/data
+    depends_on:
+      - mosquitto
+      - influxdb
+
+  python-app:
+    build: ./simulator
+    container_name: simulator
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    environment:
+      - BROKER=mosquitto
+
+>>>>>>> Stashed changes
   influxdb:
     image: influxdb:2.7
     container_name: influxdb
     restart: unless-stopped
     ports:
       - "8086:8086"
+<<<<<<< Updated upstream
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: admin
@@ -61,6 +95,19 @@ services:
       - influxdb
     networks:
       - sensor-network
+=======
+    volumes:
+      - ./influxdb_data:/var/lib/influxdb2
+      - ./influxdb_config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword123
+      - DOCKER_INFLUXDB_INIT_ORG=sensorsim
+      - DOCKER_INFLUXDB_INIT_BUCKET=sensor_data
+      - DOCKER_INFLUX_TOKEN=my-influx-token
+
+>>>>>>> Stashed changes
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -68,6 +115,7 @@ services:
     restart: unless-stopped
     ports:
       - "9000:9000"
+<<<<<<< Updated upstream
       - "8000:8000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -104,3 +152,12 @@ volumes:
 networks:
   sensor-network:
     driver: bridge
+=======
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  influxdb_data:
+  portainer_data:
+>>>>>>> Stashed changes

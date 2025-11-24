@@ -3,7 +3,10 @@ name: Project Backup
 on:
   schedule:
     - cron: "0 2 */2 * *"   # Elke 2 dagen om 02:00 UTC
-  workflow_dispatch:         # Manueel triggeren
+  workflow_dispatch:  # Manueel triggeren
+  
+permissions:
+  contents: write 
 
 jobs:
   backup:

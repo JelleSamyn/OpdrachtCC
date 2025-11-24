@@ -44,7 +44,8 @@
         "y": 200,
         "wires": [
             [
-                "func_validate_buttons"
+                "func_validate_buttons",
+                "7ab7afb1263e7a6a"
             ]
         ]
     },
@@ -53,8 +54,9 @@
         "type": "function",
         "z": "tab1",
         "name": "Validate Joystick",
-        "func": "var payload = msg.payload;\n// Simple validation: magnitude should not be > 2 (just an example rule)\nif (payload.magnitude > 2) {\n    return null;\n}\n\n// Add measurement name for InfluxDB\nmsg.payload = [\n    {\n        measurement: \"joystick\",\n        fields: {\n            x: payload.x,\n            y: payload.y,\n            magnitude: payload.magnitude\n        },\n        tags: {\n            source: \"simulator\"\n        },\n        timestamp: new Date(payload.timestamp)\n    }\n];\nreturn msg;",
+        "func": "var payload = msg.payload;\n\n// Convert to numbers explicitly\nvar x = parseFloat(payload.x);\nvar y = parseFloat(payload.y);\nvar magnitude = parseFloat(payload.magnitude);\n\n// Validation: magnitude should not be > 2\nif (magnitude > 2 || isNaN(magnitude) || isNaN(x) || isNaN(y)) {\n    return null;\n}\n\n// Add measurement name for InfluxDB with proper number types\nmsg.payload = [\n    {\n        measurement: \"joystick\",\n        fields: {\n            x: x,\n            y: y,\n            magnitude: magnitude\n        },\n        tags: {\n            source: \"simulator\"\n        },\n        timestamp: new Date(payload.timestamp)\n    }\n];\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -72,8 +74,9 @@
         "type": "function",
         "z": "tab1",
         "name": "Validate Buttons",
-        "func": "var payload = msg.payload;\n// Validation: pressed_count cannot be negative (already impossible by rand, but good for logic)\nif (payload.pressed_count < 0) {\n    return null;\n}\n\n// Add measurement name for InfluxDB\nmsg.payload = [\n    {\n        measurement: \"buttons\",\n        fields: {\n            pressed_count: payload.pressed_count\n        },\n        tags: {\n            source: \"simulator\"\n        },\n        timestamp: new Date(payload.timestamp)\n    }\n];\nreturn msg;",
+        "func": "var payload = msg.payload;\n\n// Convert to number explicitly\nvar pressed_count = parseInt(payload.pressed_count, 10);\n\n// Validation: pressed_count cannot be negative\nif (pressed_count < 0 || isNaN(pressed_count)) {\n    return null;\n}\n\n// Add measurement name for InfluxDB with proper number type\nmsg.payload = [\n    {\n        measurement: \"buttons\",\n        fields: {\n            pressed_count: pressed_count\n        },\n        tags: {\n            source: \"simulator\"\n        },\n        timestamp: new Date(payload.timestamp)\n    }\n];\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -82,7 +85,8 @@
         "y": 200,
         "wires": [
             [
-                "influx_out_node"
+                "0c875899816d364c",
+                "51d63f583e4204fe"
             ]
         ]
     },
@@ -91,17 +95,67 @@
         "type": "influxdb out",
         "z": "tab1",
         "influxdb": "influxdb_config",
-        "name": "InfluxDB Storage",
-        "measurement": "",
+        "name": "InfluxDB Storage joystick",
+        "measurement": "joystick",
         "precision": "",
         "retentionPolicy": "",
         "database": "database",
         "precisionV18FluxV20": "ms",
-        "retentionPolicyV18FluxV20": "",
+        "retentionPolicyV18Flux": "",
         "org": "sensorgateway",
         "bucket": "sensor_data",
         "x": 650,
-        "y": 150,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "0c875899816d364c",
+        "type": "influxdb out",
+        "z": "tab1",
+        "influxdb": "influxdb_config",
+        "name": "InfluxDB Storage Buttons",
+        "measurement": "buttons",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "sensorgateway",
+        "bucket": "sensor_data",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "7ab7afb1263e7a6a",
+        "type": "debug",
+        "z": "tab1",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "51d63f583e4204fe",
+        "type": "debug",
+        "z": "tab1",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 300,
         "wires": []
     },
     {
@@ -142,9 +196,15 @@
         "tls": "",
         "influxdbVersion": "2.0",
         "url": "http://influxdb:8086",
-        "rejectUnauthorized": true,
-        "org": "sensorgateway",
-        "bucket": "sensor_data",
-        "token": "my-super-secret-auth-token"
+        "timeout": "",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "37fd43c290f3b5f4",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-influxdb": "0.7.0"
+        }
     }
 ]

@@ -47,7 +47,7 @@ Het systeem bestaat uit de volgende Docker-containers, aangestuurd via Docker Co
 1.  Kloon deze repository.
 2.  Voer het installatiescript uit:
     ```bash
-    ./deploy.sh
+    ./deploy.bat
     ```
     Of handmatig via Docker Compose:
     ```bash
@@ -61,9 +61,6 @@ Deze gegevens zijn geconfigureerd in `docker-compose.yml` en zijn nodig om in te
 
 -   **Gebruikersnaam**: `admin`
 -   **Wachtwoord**: `adminpassword123`
--   **Organisatie**: `sensorsim`
--   **Bucket**: `sensor_data`
--   **Token**: `my-influx-token`
 
 ### Service Endpoints
 -   **Node-RED**: [http://localhost:1880](http://localhost:1880)

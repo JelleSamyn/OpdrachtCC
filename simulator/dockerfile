@@ -1,0 +1,16 @@
+# Basisimage met een lichte versie van Python 3.12.
+# Dit houdt de container klein en efficiënt.
+FROM python:3.12-slim
+
+# Stel de werkdirectory in waar alle bestanden binnen de container terechtkomen.
+WORKDIR /data
+
+# Kopieer alle bestanden uit je projectmap naar de container.
+COPY . .
+
+# Installeer alle Python-afhankelijkheden uit requirements.txt.
+# --no-cache-dir voorkomt dat pip tijdelijke bestanden bewaart en houdt de container kleiner.
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Start het Python-script waarmee de applicatie draait.
+CMD ["python", "sensor_simulator.py"]

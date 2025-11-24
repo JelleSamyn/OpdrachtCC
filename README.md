@@ -21,7 +21,7 @@ The system consists of the following Docker containers:
 1.  Clone this repository.
 2.  Run the deployment script:
     ```bash
-    ./deploy.sh
+    ./deploy.bat
     ```
     Or manually:
     ```bash

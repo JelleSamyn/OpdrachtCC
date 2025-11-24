@@ -49,10 +49,13 @@ services:
       - "1880:1880"
     environment:
       - TZ=Europe/Brussels
+      - INFLUX_URL=http://influxdb:8086
       - INFLUX_TOKEN=my-super-secret-auth-token
+      - INFLUX_ORG=sensorgateway
+      - INFLUX_BUCKET=sensor_data
     volumes:
-      - nodered-data:/data
       - ./nodered/flows.json:/data/flows.json
+      - ./nodered/settings.js:/data/settings.js
     depends_on:
       - mosquitto
       - influxdb

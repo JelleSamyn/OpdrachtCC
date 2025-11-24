@@ -33,7 +33,7 @@
         "name": "Button Presses (Live)",
         "queries": [
           {
-            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"button\" and r._field == \"value\")"
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"buttons\" and r._field == \"pressed_count\")"
           }
         ],
         "xCol": "_time",
@@ -65,7 +65,7 @@
         "name": "Button – Gemiddelde 1 uur",
         "queries": [
           {
-            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"button\" and r._field == \"value\")\n  |> mean()"
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"buttons\" and r._field == \"pressed_count\")\n  |> mean()"
           }
         ],
         "position": { "x": 0, "y": 11, "w": 6, "h": 3 }
@@ -95,7 +95,7 @@
         "name": "Button – Gemiddelde 24 uur",
         "queries": [
           {
-            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"button\" and r._field == \"value\")\n  |> mean()"
+            "query": "from(bucket: \"sg_bucket\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"buttons\" and r._field == \"pressed_count\")\n  |> mean()"
           }
         ],
         "position": { "x": 0, "y": 17, "w": 6, "h": 3 }

@@ -143,8 +143,8 @@
         "influxdbVersion": "2.0",
         "url": "http://influxdb:8086",
         "rejectUnauthorized": true,
-        "org": "sensorgateway",
-        "bucket": "sensor_data",
-        "token": "my-super-secret-auth-token"
+        "org": "sg_org",
+        "bucket": "sg_bucket",
+        "token": "sg_default_token_please_change"
     }
 ]

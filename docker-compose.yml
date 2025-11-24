@@ -68,6 +68,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer-data:/data
+    command: --admin-password='$$2y$$05$$ZXCo5KTON6rVke.UN4AaTuA4obn0jPFDpbdqcEcFTgjCD6OYwwrna'
     networks:
       - sensor-network
 

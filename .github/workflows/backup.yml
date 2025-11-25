@@ -3,21 +3,18 @@ name: Project Backup
 on:
   schedule:
     - cron: "0 2 */2 * *"   # Elke 2 dagen om 02:00 UTC
-  workflow_dispatch:  # Manueel triggeren
-  
-permissions:
-  contents: write 
+  workflow_dispatch:
 
 jobs:
   backup:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Repo ophalen met credentials (nodig om te pushen)
-      - name: Checkout main
+      # 1️⃣ Checkout inclusief backups branch (als die bestaat)
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0            # volledige geschiedenis
           persist-credentials: true
 
       # 2️⃣ Python installeren
@@ -26,7 +23,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      # 3️⃣ Backups map aanmaken als ze nog niet bestaat
+      # 3️⃣ Backups map aanmaken
       - name: Create backup directory
         run: mkdir -p backups
 
@@ -34,14 +31,15 @@ jobs:
       - name: Run backup script
         run: python backup.py
 
-      # 5️⃣ Committen en pushen naar de "backups" branch
+      # 5️⃣ Committen en pushen naar backups branch, mét rebase om conflicts te voorkomen
       - name: Commit and push backup
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Automated backup"
-          branch: backups               # <-- Doelbranch
-          create_branch: true           # <-- Maakt branch aan als die niet bestaat
-          file_pattern: backups/*       # <-- Enkel backup-bestanden committen
+          branch: backups                  # doelbranch
+          create_branch: true              # maak branch aan indien nodig
+          file_pattern: backups/*          # alleen backup bestanden
+          pull_strategy: "REBASE"          # <--- FIX VOOR PUSH FOUT
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
         env:

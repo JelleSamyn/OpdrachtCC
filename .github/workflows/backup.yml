@@ -5,17 +5,20 @@ on:
     - cron: "0 2 */2 * *"   # Elke 2 dagen om 02:00 UTC
   workflow_dispatch:
 
+# 🔑 NODIG om te kunnen pushen
+permissions:
+  contents: write
+
 jobs:
   backup:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout inclusief backups branch (als die bestaat)
+      # 1️⃣ Repository checkout
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0            # volledige geschiedenis
-          persist-credentials: true
+          fetch-depth: 0
 
       # 2️⃣ Python installeren
       - name: Setup Python
@@ -31,16 +34,13 @@ jobs:
       - name: Run backup script
         run: python backup.py
 
-      # 5️⃣ Committen en pushen naar backups branch, mét rebase om conflicts te voorkomen
+      # 5️⃣ Commit & push naar backups branch
       - name: Commit and push backup
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Automated backup"
-          branch: backups                  # doelbranch
-          create_branch: true              # maak branch aan indien nodig
-          file_pattern: backups/*          # alleen backup bestanden
-          pull_strategy: "REBASE"          # <--- FIX VOOR PUSH FOUT
+          branch: backups
+          create_branch: true
+          file_pattern: backups/*
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
